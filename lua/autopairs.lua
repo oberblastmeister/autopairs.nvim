@@ -5,22 +5,14 @@ local utils = require("autopairs/utils")
 local M = {}
 
 do
-  --- cache the current line
-  -- local current_line
-
-  -- local function get_current_line()
-  --   if current_line == nil then
-  --     current_line = api.nvim_get_current_line()
-  --   end
-  --   return current_line
-  -- end
-
   --- inserts a closing pair from an opening pair
   function M.on_open_pair(open_pair)
     local close_pair = utils.pair_table[open_pair]
     local input = string.format("%s%s", open_pair, close_pair)
     api.nvim_feedkeys(input, 'in', false)
     api.nvim_input("<Left>")
+    -- undo poits
+    -- api.nvim_input("<Left><C-G>u")
   end
 
   function M.on_close_pair(close_pair)
