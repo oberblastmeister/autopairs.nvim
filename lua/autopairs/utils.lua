@@ -19,19 +19,42 @@ function M.is_same_pair(open_pair)
   return open_pair == M.pair_table[open_pair]
 end
 
-function M.get_line()
-  return api.nvim_get_current_line()
+--- takes only the open pair and checks if it is surrounded by the close pair
+function M.is_surrounded_by(open_pair, line)
+  local close_pair = M.pair_table[open_pair]
+  return M.get_char_from_cursor(-1, line) == open_pair and
+    M.get_char_from_cursor(0, line) == close_pair
 end
 
+--- checks if the cursor is surrounded by any pairs defined in pair_table
+--- returns bool and what is was surrounded by
+function M.is_surrounded_by_any(line)
+  for open_pair, _ in pairs(M.pair_table) do
+    if M.is_surrounded_by(open_pair, line) == true then
+      return true, open_pair
+    end
+  end
+end
+
+--- returns 1 based index
 function M.col()
-  return api.nvim_win_get_cursor(0)[2]
+  -- must add one because win get cursor return (1, 0) based index
+  return api.nvim_win_get_cursor(0)[2] + 1
 end
 
 --- gets the char before the cursor
 function M.get_char_before()
   local line = api.nvim_get_current_line()
-  -- add one to convert from 0 based index to 1, add another 1 to get char before
-  local idx =  M.col() + 1 + 1
+  local idx =  M.col() + 1
+  return line:sub(idx, idx)
+end
+
+--- gets the char with distance from the cursor.
+--- if the cursor is the pipe symbol in insert mode,
+--- '|' means that if distance is zero, ' to the
+--- right of the cursor is the result
+function M.get_char_from_cursor(distance, line)
+  local idx = M.col() + distance
   return line:sub(idx, idx)
 end
 
@@ -75,6 +98,10 @@ function line_is_closed_same(open_pair, line)
     end
   end
   return num % 2
+end
+
+function M.replace_termcodes(str)
+  return api.nvim_replace_termcodes(str, true, true, true)
 end
 
 return M
