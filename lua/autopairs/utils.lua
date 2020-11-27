@@ -42,6 +42,11 @@ function M.col()
   return api.nvim_win_get_cursor(0)[2] + 1
 end
 
+--- one based index
+function M.linenr()
+  return api.nvim_win_get_cursor(0)[1]
+end
+
 --- gets the char before the cursor
 function M.get_char_before()
   local line = api.nvim_get_current_line()

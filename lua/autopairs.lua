@@ -17,6 +17,7 @@ function M.on_close_pair(close_pair)
   if utils.get_char_from_cursor(0, line) == close_pair then
     api.nvim_feedkeys(utils.replace_termcodes("<Right>"), 'in', false)
   else
+    -- vim.cmd [[redraw]]
     api.nvim_feedkeys(close_pair, 'in', false)
   end
 end
