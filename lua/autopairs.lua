@@ -36,10 +36,11 @@ function M.on_enter()
   local line = api.nvim_get_current_line()
   local is_surrounded, open_pair = utils.is_surrounded_by_any(line)
   if is_surrounded then
-    local input = utils.replace_termcodes("<CR><CR><Esc>kk=2jjS")
-    api.nvim_feedkeys(input, 'n', true)
+    -- need escape to circumvent completion menu popup
+    local input = utils.replace_termcodes("<Esc>a<CR><Right><Up><CR>")
+    api.nvim_feedkeys(input, 'in', true)
   else
-    api.nvim_feedkeys(utils.replace_termcodes("<CR>"), 'ni', false)
+    api.nvim_feedkeys(utils.replace_termcodes("<CR>"), 'ni', true)
   end
 end
 

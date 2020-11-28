@@ -109,4 +109,26 @@ function M.replace_termcodes(str)
   return api.nvim_replace_termcodes(str, true, true, true)
 end
 
+function M.send_real_enter()
+  local linenr = M.linenr()
+
+  local enter = M.replace_termcodes("<CR>")
+  api.nvim_feedkeys(enter, "in", false)
+
+  -- try again if linenr did not change, might be due to completion menu popup
+  local new_linenr = M.linenr()
+  if linenr == new_linenr then
+  -- if linenr ~= M.linenr() - 1 then
+    api.nvim_feedkeys(enter, "in", false)
+
+    linenr = new_linenr
+
+    -- if this doesn't work, error
+    if linenr == M.linenr() then
+      api.nvim_err_write("Failed to insert newline with enter")
+      return
+    end
+  end
+end
+
 return M
