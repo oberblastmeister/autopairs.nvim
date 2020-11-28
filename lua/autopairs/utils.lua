@@ -75,11 +75,11 @@ function M.line_is_closed(open_pair, line)
   if M.is_same_pair(open_pair) then
     return line_is_closed_same(open_pair, line)
   else
-    return line_is_closed_different(open_pair, line)
+    return line_is_closed_difference(open_pair, line)
   end
 end
 
-function line_is_closed_different(open_pair, line)
+function line_is_closed_difference(open_pair, line)
   local stack = 0
   for uchar in string.gmatch(line, "([%z\1-\127\194-\244][\128-\191]*)") do
     -- push to the stack

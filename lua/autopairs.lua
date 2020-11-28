@@ -1,6 +1,7 @@
 local vim = vim
 local api = vim.api
 local utils = require("autopairs/utils")
+local mappings = require("autopairs/mappings")
 
 local M = {}
 
@@ -19,6 +20,15 @@ function M.on_close_pair(close_pair)
   else
     -- vim.cmd [[redraw]]
     api.nvim_feedkeys(close_pair, 'in', false)
+  end
+end
+
+function M.on_both_pair(both_pair)
+  local line = api.nvim_get_current_line()
+  if utils.get_char_from_cursor(0, line) == both_pair then
+    api.nvim_feedkeys(utils.replace_termcodes("<Right>"), 'in', false)
+  else
+    api.nvim_feedkeys(both_pair, 'in', false)
   end
 end
 
@@ -55,50 +65,8 @@ function M.on_backspace()
   end
 end
 
-local function mapper(key, value)
-  vim.cmd(string.format("inoremap <buffer> %s <cmd>%s<CR>", key, value))
-end
-
-local function generate_open_pair_fn_str(key)
-  return string.format("lua require'autopairs'.on_open_pair(\"%s\")", key)
-end
-
-local function generate_close_pair_fn_str(key)
-  return string.format("lua require'autopairs'.on_close_pair(\"%s\")", key)
-end
-
-local function map_open_pair(open_pair)
-  mapper(open_pair, generate_open_pair_fn_str(open_pair))
-end
-
-local function map_close_pair(close_pair)
-  mapper(close_pair, generate_close_pair_fn_str(close_pair))
-end
-
-local function map_enter()
-  mapper("<CR>", "lua require'autopairs'.on_enter()")
-end
-
-local function map_space()
-  mapper("<Space>", "lua require'autopairs'.on_space()")
-end
-
-local function map_backspace()
-  mapper("<BS>", "lua require'autopairs'.on_backspace()")
-end
-
-local function create_buffer_keymaps()
-  for open_pair, close_pair in pairs(utils.pair_table) do
-    map_open_pair(open_pair)
-    map_close_pair(close_pair)
-  end
-  map_enter()
-  map_space()
-  map_backspace()
-end
-
 function M.setup(config)
-  create_buffer_keymaps()
+  mappings.create()
 end
 
 return M
