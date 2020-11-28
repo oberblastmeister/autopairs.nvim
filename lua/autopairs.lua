@@ -44,6 +44,17 @@ function M.on_space()
   end
 end
 
+function M.on_backspace()
+  local line = api.nvim_get_current_line()
+  local is_surrounded, open_pair = utils.is_surrounded_by_any(line)
+  if is_surrounded then
+    local input = utils.replace_termcodes("<BS><Del>")
+    api.nvim_feedkeys(input, "ni", true)
+  else
+    api.nvim_feedkeys(utils.replace_termcodes("<BS>"), "ni", true)
+  end
+end
+
 local function mapper(key, value)
   vim.cmd(string.format("inoremap <buffer> %s <cmd>%s<CR>", key, value))
 end
@@ -72,6 +83,10 @@ local function map_space()
   mapper("<Space>", "lua require'autopairs'.on_space()")
 end
 
+local function map_backspace()
+  mapper("<BS>", "lua require'autopairs'.on_backspace()")
+end
+
 local function create_buffer_keymaps()
   for open_pair, close_pair in pairs(utils.pair_table) do
     map_open_pair(open_pair)
@@ -79,6 +94,7 @@ local function create_buffer_keymaps()
   end
   map_enter()
   map_space()
+  map_backspace()
 end
 
 function M.setup(config)
