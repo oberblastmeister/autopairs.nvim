@@ -4,28 +4,23 @@ local utils = require("autopairs/utils")
 
 local M = {}
 
---- maps a key to a lua function call
---- For example: mapper("<CR>", on_backspace()). The function is automatically imported from autopairs
-local function mapper(key, function_call)
-  vim.cmd(string.format("inoremap <buffer> %s <cmd>lua require'autopairs'.%s<CR>", key, function_call))
-end
-
 local function generate_pair_fn_str(pair, fn_ident_str)
-  return string.format([====[%s([[%s]])]====], fn_ident_str, pair)
+  return string.format([====[<cmd>lua require'autopairs'.%s([[%s]])<CR>]====], fn_ident_str, pair)
 end
 
 function M.create()
   for open_pair, close_pair in pairs(utils.pair_table) do
     if open_pair == close_pair then
-      mapper(open_pair, generate_pair_fn_str(open_pair, "on_both_pair"))
+      api.nvim_buf_set_keymap(0, 'i', open_pair, generate_pair_fn_str(open_pair, "on_both_pair"), {noremap = true})
     else
-      mapper(open_pair, generate_pair_fn_str(open_pair, "on_open_pair"))
-      mapper(close_pair, generate_pair_fn_str(close_pair, "on_close_pair"))
+      api.nvim_buf_set_keymap(0, 'i', open_pair, generate_pair_fn_str(open_pair, "on_open_pair"), {noremap = true})
+      api.nvim_buf_set_keymap(0, 'i', close_pair, generate_pair_fn_str(close_pair, "on_close_pair"), {noremap = true})
     end
   end
-  mapper("<Space>", "on_space()")
-  mapper("<CR>", "on_enter()")
-  mapper("<BS>", "on_backspace()")
+
+  api.nvim_buf_set_keymap(0, "i", "<Space>", "<cmd>lua require'autopairs'.on_space()<CR>", {noremap = true})
+  api.nvim_buf_set_keymap(0, "i", "<CR>", "<cmd>lua require'autopairs'.on_enter()<CR>", {noremap = true})
+  api.nvim_buf_set_keymap(0, "i", "<BS>", "<cmd>lua require'autopairs'.on_backspace()<CR>", {noremap = true})
 end
 
 return M
